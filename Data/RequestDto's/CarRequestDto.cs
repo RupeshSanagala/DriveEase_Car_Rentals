@@ -19,9 +19,15 @@ namespace Car_Rental_Backend_Application.Data.RequestDto_s
         [Required]
         public string License_Plate { get; set; }
 
+        [Required]
+        public string Category { get; set; }
+
+        [Required]
+        public string Location { get; set; }
+
         //[Required]
         //public string Availability_Status { get; set; }
 
-        
+
     }
 }

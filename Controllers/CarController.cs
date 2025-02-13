@@ -153,6 +153,49 @@ namespace Car_Rental_Backend_Application.Controllers
 
             return Ok(rentedCars);
         }
+        [HttpGet("category/{category}")]
+        public async Task<ActionResult<IEnumerable<CarResponseDto>>> GetCarsByCategory(string category)
+        {
+            var cars = await _context.Cars
+                .Where(c => c.Category.ToLower() == category.ToLower())
+                .ToListAsync();
+
+            if (!cars.Any())
+                return NotFound($"No cars found in category '{category}'.");
+
+            var carResponseDtos = cars.Select(CarConverters.CarToCarResponseDto).ToList();
+            return Ok(carResponseDtos);
+        }
+        [HttpGet("city/{location}")]
+        public async Task<ActionResult<IEnumerable<CarResponseDto>>> GetCarsByCity(string location)
+        {
+            var cars = await _context.Cars
+                .Where(c => c.Location.ToLower() == location.ToLower())
+                .ToListAsync();
+
+            if (!cars.Any())
+                return NotFound($"No cars available in '{location}'.");
+
+            var carResponseDtos = cars.Select(CarConverters.CarToCarResponseDto).ToList();
+            return Ok(carResponseDtos);
+        }
+        [HttpGet("price-range")]
+        public async Task<ActionResult<IEnumerable<CarResponseDto>>> GetCarsByPriceRange([FromQuery] int minPrice, [FromQuery] int maxPrice)
+        {
+            if (minPrice > maxPrice)
+                return BadRequest("Minimum price cannot be greater than maximum price.");
+
+            var cars = await _context.Cars
+                .Where(c => c.PricePerDay >= minPrice && c.PricePerDay <= maxPrice)
+                .ToListAsync();
+
+            if (!cars.Any())
+                return NotFound($"No cars found in the price range {minPrice} - {maxPrice}.");
+
+            var carResponseDtos = cars.Select(CarConverters.CarToCarResponseDto).ToList();
+            return Ok(carResponseDtos);
+        }
+
 
     }
 }

@@ -21,6 +21,8 @@ namespace Car_Rental_Backend_Application.Data.Converters
                 Year = car.Year,
                 PricePerDay=car.PricePerDay,
                 License_Plate = car.License_Plate,
+                Location = car.Location,
+                Category = car.Category,
                 Availability_Status = car.Availability_Status.ToString(),
                 BookingIds = car.Bookings?.Select(b => b.BookingId).ToList(),
             
@@ -44,7 +46,9 @@ namespace Car_Rental_Backend_Application.Data.Converters
                 Brand = carRequestDto.Brand,
                 Model = carRequestDto.Model,
                 Year = carRequestDto.Year,
-                PricePerDay=carRequestDto.PricePerDay,
+                Location = carRequestDto.Location,
+                Category = carRequestDto.Category,
+                PricePerDay =carRequestDto.PricePerDay,
                 License_Plate = carRequestDto.License_Plate,
                 //Availability_Status = carRequestDto.Availability_Status, 
             };
