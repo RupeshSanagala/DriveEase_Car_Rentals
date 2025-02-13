@@ -9,9 +9,9 @@ namespace Car_Rental_Backend_Application.Data.RequestDto_s
 
 
         [Required]
-        public string PickupDate { get; set; }
+        public DateOnly PickupDate { get; set; }
 
         [Required]
-        public string ReturnDate { get; set; }
+        public DateOnly ReturnDate { get; set; }
     }
 }

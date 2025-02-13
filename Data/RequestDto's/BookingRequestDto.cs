@@ -12,13 +12,13 @@ namespace Car_Rental_Backend_Application.Data.RequestDto_s
         public int Car_ID { get; set; } 
 
         [Required]
-        public string BookingDate { get; set; }
+        public DateOnly BookingDate { get; set; }
 
         [Required]
-        public string PickupDate { get; set; }
+        public DateOnly PickupDate { get; set; }
 
         [Required]
-        public string ReturnDate { get; set; }
+        public DateOnly ReturnDate { get; set; }
 
         //[Required]
         //[Range(0, double.MaxValue, ErrorMessage = "Total Price must be positive.")]

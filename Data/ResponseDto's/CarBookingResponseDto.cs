@@ -11,9 +11,9 @@
         public int Car_ID { get; set; }
         public string CarDetails { get; set; }
 
-        public string BookingDate { get; set; }
-        public string PickupDate { get; set; }
-        public string ReturnDate { get; set; }
+        public DateOnly BookingDate { get; set; }
+        public DateOnly PickupDate { get; set; }
+        public DateOnly ReturnDate { get; set; }
 
         public decimal TotalPrice { get; set; }
     }

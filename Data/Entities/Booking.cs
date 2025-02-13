@@ -20,13 +20,13 @@ namespace Car_Rental_Backend_Application.Data.Entities
         public Car Car { get; set; }
 
         [Required]
-        public string BookingDate { get; set; }
+        public DateOnly BookingDate { get; set; }
 
         [Required]
-        public string PickupDate { get; set; }
+        public DateOnly PickupDate { get; set; }
 
         [Required]
-        public string ReturnDate { get; set; }
+        public DateOnly ReturnDate { get; set; }
 
         [Required]
         public decimal TotalPrice { get; set; }

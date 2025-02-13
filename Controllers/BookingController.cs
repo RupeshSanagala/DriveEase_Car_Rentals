@@ -146,15 +146,18 @@ public class BookingController : ControllerBase
             if (car.Availability_Status == "Booked")
                 return BadRequest("Car is currently rented and not available for booking.");
 
-            // 🔹 Convert string dates to DateTime for comparison and calculation
-            DateTime pickupDate = DateTime.ParseExact(bookingRequest.PickupDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
-            DateTime returnDate = DateTime.ParseExact(bookingRequest.ReturnDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
+            // 🔹 Extract DateOnly values directly
+            DateOnly pickupDate = bookingRequest.PickupDate;
+            DateOnly returnDate = bookingRequest.ReturnDate;
+
+            // 🔹 Convert DateOnly to DateTime for price calculation
+            DateTime pickupDateTime = pickupDate.ToDateTime(TimeOnly.MinValue);
+            DateTime returnDateTime = returnDate.ToDateTime(TimeOnly.MinValue);
 
             // 🔹 Check if car is already booked in the given date range
             bool isCarBooked = await _context.Bookings.AnyAsync(b =>
                 b.Car_ID == bookingRequest.Car_ID &&
-                (DateTime.ParseExact(b.PickupDate, "dd-MM-yyyy", CultureInfo.InvariantCulture) <= returnDate &&
-                 DateTime.ParseExact(b.ReturnDate, "dd-MM-yyyy", CultureInfo.InvariantCulture) >= pickupDate));
+                (b.PickupDate <= returnDate && b.ReturnDate >= pickupDate));
 
             if (isCarBooked)
                 return BadRequest("Car is already booked for the selected dates.");
@@ -163,7 +166,7 @@ public class BookingController : ControllerBase
                 return BadRequest("Invalid booking dates.");
 
             // 🔹 Calculate total price
-            var totalDays = (returnDate - pickupDate).Days;
+            var totalDays = (returnDateTime - pickupDateTime).Days;
             var totalPrice = totalDays * car.PricePerDay;
 
             // 🔹 Create new booking entity
@@ -171,9 +174,9 @@ public class BookingController : ControllerBase
             {
                 User_ID = userId,
                 Car_ID = bookingRequest.Car_ID,
-                BookingDate = DateTime.Now.ToString("dd-MM-yyyy"), // Store as string in the "dd-MM-yyyy" format
-                PickupDate = bookingRequest.PickupDate,  // Store as string
-                ReturnDate = bookingRequest.ReturnDate,  // Store as string
+                BookingDate = DateOnly.FromDateTime(DateTime.Now),
+                PickupDate = pickupDate,  // Store as DateOnly
+                ReturnDate = returnDate,  // Store as DateOnly
                 TotalPrice = totalPrice,
                 User = user,
                 Car = car
@@ -195,18 +198,18 @@ public class BookingController : ControllerBase
             // ✅ Send Booking Confirmation Email
             string emailSubject = "Booking Confirmation - Car Rental";
             string emailBody = $@"
-            <h2>Dear {user.Username},</h2>
-            <p>Your booking has been successfully confirmed.</p>
-            <h3>Booking Details:</h3>
-            <ul>
-                <li><strong>Booking ID:</strong> {booking.BookingId}</li>
-                <li><strong>Car Model:</strong> {car.Model}</li>
-                <li><strong>Pickup Date:</strong> {pickupDate:yyyy-MM-dd}</li>
-                <li><strong>Return Date:</strong> {returnDate:yyyy-MM-dd}</li>
-                <li><strong>Total Price:</strong> ${booking.TotalPrice}</li>
-            </ul>
-            <p>Thank you for choosing our service!</p>
-            <p>Best Regards, <br/>Car Rental Team</p>";
+        <h2>Dear {user.Username},</h2>
+        <p>Your booking has been successfully confirmed.</p>
+        <h3>Booking Details:</h3>
+        <ul>
+            <li><strong>Booking ID:</strong> {booking.BookingId}</li>
+            <li><strong>Car Model:</strong> {car.Model}</li>
+            <li><strong>Pickup Date:</strong> {pickupDate:yyyy-MM-dd}</li>
+            <li><strong>Return Date:</strong> {returnDate:yyyy-MM-dd}</li>
+            <li><strong>Total Price:</strong> ${booking.TotalPrice}</li>
+        </ul>
+        <p>Thank you for choosing our service!</p>
+        <p>Best Regards, <br/>Car Rental Team</p>";
 
             await _emailService.SendEmailAsync(user.Email, emailSubject, emailBody);
 
@@ -219,8 +222,8 @@ public class BookingController : ControllerBase
                 Car_ID = car.Car_ID,
                 CarDetails = $"{car.Brand} {car.Model}",
                 BookingDate = booking.BookingDate,
-                PickupDate = pickupDate.ToString("dd-MM-yyyy"),  // Format as string for response
-                ReturnDate = returnDate.ToString("dd-MM-yyyy"),  // Format as string for response
+                PickupDate = booking.PickupDate,
+                ReturnDate = booking.ReturnDate,
                 TotalPrice = totalPrice
             };
 
@@ -231,6 +234,7 @@ public class BookingController : ControllerBase
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
     }
+
 
 
 
@@ -273,9 +277,9 @@ public class BookingController : ControllerBase
         if (booking == null)
             return NotFound($"Booking with ID {id} not found.");
 
-        // 🔹 Convert string dates to DateTime for comparison and calculation
-        DateTime pickupDate = DateTime.ParseExact(bookingRequestDto.PickupDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
-        DateTime returnDate = DateTime.ParseExact(bookingRequestDto.ReturnDate, "dd-MM-yyyy", CultureInfo.InvariantCulture);
+        // 🔹 Convert DTO DateOnly fields directly
+        DateOnly pickupDate = bookingRequestDto.PickupDate;
+        DateOnly returnDate = bookingRequestDto.ReturnDate;
 
         // 🔹 Validate Booking Dates
         if (pickupDate >= returnDate)
@@ -285,23 +289,26 @@ public class BookingController : ControllerBase
         bool isCarBooked = await _context.Bookings.AnyAsync(b =>
             b.Car_ID == booking.Car_ID &&
             b.BookingId != id && // Exclude current booking
-            (DateTime.ParseExact(b.PickupDate, "dd-MM-yyyy", CultureInfo.InvariantCulture) <= returnDate &&
-             DateTime.ParseExact(b.ReturnDate, "dd-MM-yyyy", CultureInfo.InvariantCulture) >= pickupDate)
+            (b.PickupDate <= returnDate && b.ReturnDate >= pickupDate) // Direct DateOnly comparison
         );
 
         if (isCarBooked)
             return BadRequest("Car is already booked for the selected dates.");
 
+        // 🔹 Convert DateOnly to DateTime for price calculation
+        DateTime pickupDateTime = pickupDate.ToDateTime(TimeOnly.MinValue);
+        DateTime returnDateTime = returnDate.ToDateTime(TimeOnly.MinValue);
+
         // 🔹 Recalculate Total Price
-        var totalDays = (returnDate - pickupDate).Days;
+        var totalDays = (returnDateTime - pickupDateTime).Days;
         if (totalDays <= 0)
             return BadRequest("Booking duration must be at least one day.");
 
         var totalPrice = totalDays * booking.Car.PricePerDay;
 
         // 🔹 Update Booking Details
-        booking.PickupDate = bookingRequestDto.PickupDate;  // Store as string
-        booking.ReturnDate = bookingRequestDto.ReturnDate;  // Store as string
+        booking.PickupDate = pickupDate;  // Store as DateOnly
+        booking.ReturnDate = returnDate;  // Store as DateOnly
         booking.TotalPrice = totalPrice;
 
         try
@@ -314,6 +321,7 @@ public class BookingController : ControllerBase
             return StatusCode(500, "Database concurrency issue. Please try again.");
         }
     }
+
 
 
     [HttpDelete("{id}")]
