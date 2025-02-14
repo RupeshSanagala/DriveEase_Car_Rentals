@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Car_Rental_Backend_Application.Migrations
 {
     /// <inheritdoc />
-    public partial class DateChangedtoString : Migration
+    public partial class ContactAdded : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -50,12 +50,37 @@ namespace Car_Rental_Backend_Application.Migrations
                     PricePerDay = table.Column<int>(type: "int", nullable: false),
                     License_Plate = table.Column<string>(type: "varchar(255)", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
+                    Category = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Location = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     Availability_Status = table.Column<string>(type: "longtext", nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Cars", x => x.Car_ID);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "Contacts",
+                columns: table => new
+                {
+                    ContactId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Full_Name = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Email = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    PhoneNumber = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Message = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Contacts", x => x.ContactId);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -95,12 +120,9 @@ namespace Car_Rental_Backend_Application.Migrations
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     User_ID = table.Column<int>(type: "int", nullable: false),
                     Car_ID = table.Column<int>(type: "int", nullable: false),
-                    BookingDate = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    PickupDate = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
-                    ReturnDate = table.Column<string>(type: "longtext", nullable: false)
-                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    BookingDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    PickupDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    ReturnDate = table.Column<DateOnly>(type: "date", nullable: false),
                     TotalPrice = table.Column<decimal>(type: "decimal(65,30)", nullable: false)
                 },
                 constraints: table =>
@@ -157,34 +179,34 @@ namespace Car_Rental_Backend_Application.Migrations
 
             migrationBuilder.InsertData(
                 table: "Cars",
-                columns: new[] { "Car_ID", "Availability_Status", "Brand", "License_Plate", "Model", "PricePerDay", "Year" },
+                columns: new[] { "Car_ID", "Availability_Status", "Brand", "Category", "License_Plate", "Location", "Model", "PricePerDay", "Year" },
                 values: new object[,]
                 {
-                    { 1, "Available", "Honda", "ABC123", "City", 50, 2022 },
-                    { 2, "Available", "Hyundai", "XYZ456", "Creta", 55, 2021 },
-                    { 3, "Available", "Hyundai", "HYU789", "i20", 40, 2023 },
-                    { 4, "Available", "Mahindra", "MH300T", "TUV 300", 60, 2020 },
-                    { 5, "Available", "Tata", "TAT456", "Punch", 45, 2022 },
-                    { 6, "Available", "Suzuki", "SUZ123", "Celerio", 35, 2021 },
-                    { 7, "Available", "Tata", "TIG789", "Tiago", 38, 2022 },
-                    { 8, "Available", "Toyota", "TOY999", "Corolla", 55, 2019 },
-                    { 9, "Available", "Mahindra", "BOL345", "Bolero", 50, 2020 },
-                    { 10, "Available", "Chevrolet", "CHEV789", "Malibu", 65, 2018 },
-                    { 11, "Available", "Maruti Suzuki", "ERT123", "Ertiga", 50, 2022 },
-                    { 12, "Available", "Honda", "CIV567", "Civic", 70, 2021 },
-                    { 13, "Available", "Toyota", "INN999", "Innova", 80, 2023 },
-                    { 14, "Available", "Jeep", "JEEP123", "Compass", 75, 2020 },
-                    { 15, "Available", "Kia", "KIA456", "Seltos", 60, 2022 },
-                    { 16, "Available", "Mahindra", "MOR123", "Morrozo", 70, 2021 },
-                    { 17, "Available", "Mahindra", "XUV700", "XUV700", 85, 2022 },
-                    { 18, "Available", "Mahindra", "XUV300", "XUV300", 55, 2020 },
-                    { 19, "Available", "Mahindra", "THAR999", "Thar", 90, 2023 },
-                    { 20, "Available", "Maruti Suzuki", "CIAZ567", "Ciaz", 50, 2019 },
-                    { 21, "Available", "Nissan", "ALTIMA1", "Altima", 75, 2021 },
-                    { 22, "Available", "Tata", "ALT123", "Altroz Dark Edition", 60, 2022 },
-                    { 23, "Available", "Tata", "SAFARI1", "Safari", 85, 2023 },
-                    { 24, "Available", "Hyundai", "VERNA88", "Verna", 55, 2022 },
-                    { 25, "Available", "Volkswagen", "JET789", "Jetta", 70, 2019 }
+                    { 1, "Available", "Honda", "Sedan", "ABC123", "Mumbai", "City", 50, 2022 },
+                    { 2, "Available", "Hyundai", "SUV", "XYZ456", "Delhi", "Creta", 55, 2021 },
+                    { 3, "Available", "Hyundai", "Hatchback", "HYU789", "Bangalore", "i20", 40, 2023 },
+                    { 4, "Available", "Mahindra", "SUV", "MH300T", "Chennai", "TUV 300", 60, 2020 },
+                    { 5, "Available", "Tata", "Hatchback", "TAT456", "Kolkata", "Punch", 45, 2022 },
+                    { 6, "Available", "Suzuki", "Hatchback", "SUZ123", "Hyderabad", "Celerio", 35, 2021 },
+                    { 7, "Available", "Tata", "Hatchback", "TIG789", "Pune", "Tiago", 38, 2022 },
+                    { 8, "Available", "Toyota", "Sedan", "TOY999", "Ahmedabad", "Corolla", 55, 2019 },
+                    { 9, "Available", "Mahindra", "SUV", "BOL345", "Jaipur", "Bolero", 50, 2020 },
+                    { 10, "Available", "Chevrolet", "Luxury", "CHEV789", "Surat", "Malibu", 65, 2018 },
+                    { 11, "Available", "Maruti Suzuki", "MUV", "ERT123", "Lucknow", "Ertiga", 50, 2022 },
+                    { 12, "Available", "Honda", "Sedan", "CIV567", "Nagpur", "Civic", 70, 2021 },
+                    { 13, "Available", "Toyota", "MUV", "INN999", "Indore", "Innova", 80, 2023 },
+                    { 14, "Available", "Jeep", "SUV", "JEEP123", "Patna", "Compass", 75, 2020 },
+                    { 15, "Available", "Kia", "SUV", "KIA456", "Bhopal", "Seltos", 60, 2022 },
+                    { 16, "Available", "Mahindra", "SUV", "MOR123", "Vadodara", "Morrozo", 70, 2021 },
+                    { 17, "Available", "Mahindra", "SUV", "XUV700", "Ludhiana", "XUV700", 85, 2022 },
+                    { 18, "Available", "Mahindra", "SUV", "XUV300", "Agra", "XUV300", 55, 2020 },
+                    { 19, "Available", "Mahindra", "SUV", "THAR999", "Nashik", "Thar", 90, 2023 },
+                    { 20, "Available", "Maruti Suzuki", "Sedan", "CIAZ567", "Meerut", "Ciaz", 50, 2019 },
+                    { 21, "Available", "Nissan", "Sedan", "ALTIMA1", "Rajkot", "Altima", 75, 2021 },
+                    { 22, "Available", "Tata", "Hatchback", "ALT123", "Jamshedpur", "Altroz Dark Edition", 60, 2022 },
+                    { 23, "Available", "Tata", "SUV", "SAFARI1", "Amritsar", "Safari", 85, 2023 },
+                    { 24, "Available", "Hyundai", "Sedan", "VERNA88", "Jodhpur", "Verna", 55, 2022 },
+                    { 25, "Available", "Volkswagen", "Luxury", "JET789", "Dehradun", "Jetta", 70, 2019 }
                 });
 
             migrationBuilder.CreateIndex(
@@ -235,6 +257,9 @@ namespace Car_Rental_Backend_Application.Migrations
 
             migrationBuilder.DropTable(
                 name: "Cancellations");
+
+            migrationBuilder.DropTable(
+                name: "Contacts");
 
             migrationBuilder.DropTable(
                 name: "Bookings");

@@ -13,6 +13,8 @@ namespace Car_Rental_Backend_Application.Data
         public DbSet<Admin> Admin { get; set; }
         public DbSet<Cancellation> Cancellations { get; set; }
 
+        public DbSet<Contact> Contacts { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>()
